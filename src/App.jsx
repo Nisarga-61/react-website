@@ -1,120 +1,164 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useState, useEffect } from 'react'
 import './App.css'
 
+const mockAlbums = [
+  { id: 1, title: 'Neon Dreams', artist: 'Cyber Wave', duration: 180, cover: '🎵' },
+  { id: 2, title: 'Electric Pulse', artist: 'Synth Masters', duration: 220, cover: '🎶' },
+  { id: 3, title: 'Digital Horizon', artist: 'Future Sound', duration: 200, cover: '🎼' },
+  { id: 4, title: 'Glitch Paradise', artist: 'Vaporwave', duration: 240, cover: '🎤' },
+]
+
+const mockPlaylists = [
+  { id: 1, name: 'Favorites', icon: '❤️' },
+  { id: 2, name: 'Discover', icon: '✨' },
+  { id: 3, name: 'Chill Vibes', icon: '🌙' },
+  { id: 4, name: 'Energy Boost', icon: '⚡' },
+]
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [currentTrack, setCurrentTrack] = useState(mockAlbums[0])
+  const [selectedPlaylist, setSelectedPlaylist] = useState('Favorites')
+
+  useEffect(() => {
+    let interval
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            setIsPlaying(false)
+            return 0
+          }
+          return prev + 0.5
+        })
+      }, 1000)
+    }
+    return () => clearInterval(interval)
+  }, [isPlaying])
+
+  const handlePlayPause = () => {
+    setIsPlaying(!isPlaying)
+  }
+
+  const handleTrackChange = (track) => {
+    setCurrentTrack(track)
+    setProgress(0)
+    setIsPlaying(true)
+  }
+
+  const formatTime = (percent) => {
+    const seconds = Math.floor((percent / 100) * currentTrack.duration)
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="app-container">
+      {/* Sidebar */}
+      <aside className="sidebar">
+        <div className="sidebar-header">
+          <div className="logo">🎵</div>
+          <h1>NeonBeat</h1>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
 
-      <div className="ticks"></div>
+        <nav className="playlists">
+          <h3>Your Playlists</h3>
+          {mockPlaylists.map((playlist) => (
+            <div
+              key={playlist.id}
+              className={`playlist-item ${selectedPlaylist === playlist.name ? 'active' : ''}`}
+              onClick={() => setSelectedPlaylist(playlist.name)}
+            >
+              <span className="playlist-icon">{playlist.icon}</span>
+              <span className="playlist-name">{playlist.name}</span>
+            </div>
+          ))}
+        </nav>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        <div className="sidebar-footer">
+          <p>© 2025 NeonBeat</p>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      </aside>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      {/* Main Content */}
+      <main className="main-content">
+        {/* Header */}
+        <header className="header">
+          <h2>{selectedPlaylist}</h2>
+          <div className="header-icons">
+            <button className="icon-btn">🔍</button>
+            <button className="icon-btn">⚙️</button>
+          </div>
+        </header>
+
+        {/* Album Grid */}
+        <section className="album-grid">
+          {mockAlbums.map((album) => (
+            <div
+              key={album.id}
+              className={`album-card ${currentTrack.id === album.id ? 'active' : ''}`}
+              onClick={() => handleTrackChange(album)}
+            >
+              <div className="album-cover">{album.cover}</div>
+              <div className="album-info">
+                <h4>{album.title}</h4>
+                <p>{album.artist}</p>
+              </div>
+              <div className="album-duration">{Math.floor(album.duration / 60)}m</div>
+            </div>
+          ))}
+        </section>
+
+        {/* Player */}
+        <section className="player-section">
+          <div className="now-playing">
+            <div className="now-playing-cover">{currentTrack.cover}</div>
+            <div className="now-playing-info">
+              <h2>{currentTrack.title}</h2>
+              <p>{currentTrack.artist}</p>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="progress-container">
+            <span className="time">{formatTime(progress)}</span>
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={progress}
+                onChange={(e) => setProgress(Number(e.target.value))}
+                className="progress-slider"
+              />
+            </div>
+            <span className="time">{Math.floor(currentTrack.duration / 60)}:00</span>
+          </div>
+
+          {/* Controls */}
+          <div className="controls">
+            <button className="control-btn">⏮️</button>
+            <button
+              className={`play-btn ${isPlaying ? 'playing' : ''}`}
+              onClick={handlePlayPause}
+            >
+              {isPlaying ? '⏸️' : '▶️'}
+            </button>
+            <button className="control-btn">⏭️</button>
+          </div>
+
+          {/* Volume & Settings */}
+          <div className="player-footer">
+            <button className="footer-btn">🔊</button>
+            <input type="range" min="0" max="100" defaultValue="70" className="volume-slider" />
+            <button className="footer-btn">❤️</button>
+          </div>
+        </section>
+      </main>
+    </div>
   )
 }
 
